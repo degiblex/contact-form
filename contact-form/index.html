@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Contact Us</title>
+    <style>
+        .container {
+            max-width: 1700px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        @media screen and (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            input[type="text"],
+            input[type="email"],
+            input[type="tel"],
+            textarea {
+                padding: 5px;
+            }
+
+            button {
+                padding: 5px 10px;
+            }
+        }
+    </style>
+    <script src="https://apis.google.com/js/api.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Contact Us</h2>
+        <form id="contactForm" action="submit.php" method="post">
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email ID:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="phone">Phone Number:</label>
+                <input type="tel" id="phone" name="phone" required>
+            </div>
+            <div class="form-group">
+                <label for="description">Short Description:</label>
+                <textarea id="description" name="description" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="comments">Comments:</label>
+                <textarea id="comments" name="comments"></textarea>
+            </div>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+    <script>
+        window.addEventListener('DOMContentLoaded', function () {
+            var form = document.getElementById('contactForm');
+            form.addEventListener('submit', function (event) {
+                event.preventDefault(); // Prevent form submission
+
+                // Collect form data
+                var formData = new FormData(form);
+                var data = {};
+                formData.forEach(function (value, key) {
+                    data[key] = value;
+                });
+
+                // Save form data to Google Sheets
+                saveToGoogleSheets(data);
+                // Reset form after submission
+                form.reset();
+            });
+        });
+
+        function saveToGoogleSheets(data) {
+            gapi.load('client', initClient);
+
+            function initClient() {
+                gapi.client.init({
+                    apiKey: 'AIzaSyCAcImn_qxRPvvTRV5EAgo6yR7k2z5m4_g',
+                    clientId: '562102964300-ul2k2egfmq9jhg6u0bllrhp0lff8cm1m.apps.googleusercontent.com',
+                    discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
+                    scope: 'https://www.googleapis.com/auth/spreadsheets'
+                }).then(function () {
+                    gapi.client.sheets.spreadsheets.values.append({
+                        spreadsheetId: '1KQUPp4ZlBtbWEpY1Jsxhm5ZpsIz2vDsAf1UcYcuSUq4',
+                        range: 'Sheet1!A1',
+                        valueInputOption: 'RAW',
+                        resource: {
+                            values: [[data.name, data.email, data.phone, data.description, data.comments]]
+                        }
+                    }).then(function (response) {
+                        console.log('Form data saved to Google Sheets');
+                    }, function (error) {
+                        console.error('Error saving form data:', error);
+                    });
+                });
+            }
+        }
+
+    </script>
+</body>
+
+</html>
